@@ -8,7 +8,7 @@ Given three pegs with disks of different sizes, like this:
     ═╪═     │      │
    ══╪══    │      │
   ═══╪═══   │      │
-──── 1 ──── 2 ──── 3 ──
+──── 1 ──── 2 ──── 3 ────
 ```
 
 The objective of the game is to move all the disks from peg 1 to peg 3. A move is
