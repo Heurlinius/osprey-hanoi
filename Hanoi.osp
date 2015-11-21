@@ -1,0 +1,154 @@
+use namespace aves;
+
+namespace games.hanoi;
+
+public class Hanoi
+{
+	public new(config)
+	{
+		_pegs = new HanoiPegs(config);
+		_renderer = new HanoiRenderer(this);
+		initKeyHandlers();
+	}
+
+	private _pegs;
+	public get pegs = _pegs;
+
+	private _renderer;
+	public get renderer = _renderer;
+
+	private _moves = 0;
+	public get moves = _moves;
+
+	private _current = null;
+	public get current = _current;
+
+	private keyHandlers;
+
+	private running = false;
+
+	private initKeyHandlers()
+	{
+		var select0 = @= selectPeg(0);
+		var select1 = @= selectPeg(1);
+		var select2 = @= selectPeg(2);
+
+		keyHandlers = {
+			ConsoleKeyCode.d1: select0,
+			ConsoleKeyCode.a: select0,
+			ConsoleKeyCode.j: select0,
+			ConsoleKeyCode.numPad1: select0,
+
+			ConsoleKeyCode.d2: select1,
+			ConsoleKeyCode.s: select1,
+			ConsoleKeyCode.k: select1,
+			ConsoleKeyCode.numPad2: select1,
+
+			ConsoleKeyCode.d3: select2,
+			ConsoleKeyCode.d: select2,
+			ConsoleKeyCode.l: select2,
+			ConsoleKeyCode.numPad3: select2,
+
+			ConsoleKeyCode.r: reset,
+
+			ConsoleKeyCode.q: quit,
+			ConsoleKeyCode.escape: quit,
+		};
+	}
+
+	public reset()
+	{
+		_moves = 0;
+		_current = null;
+		_pegs.reset();
+		_renderer.reset();
+	}
+
+	public run()
+	{
+		if running:
+			throw new InvalidStateError("The game is already running.");
+
+		reset();
+
+		try
+		{
+			_renderer.initialize();
+
+			running = true;
+			while running
+			{
+				_renderer.render();
+				_renderer.status = "";
+
+				processMove();
+			}
+		}
+		finally
+		{
+			_renderer.restore();
+		}
+	}
+
+	private processMove()
+	{
+		var key = Console.readKey(true);
+		var kc = key.keyCode;
+
+		var handler;
+		if keyHandlers.tryGet(kc, ref handler):
+			handler();
+	}
+
+	public quit()
+	{
+		running = false;
+	}
+
+	public selectPeg(peg)
+	{
+		if _current is null
+		{
+			if _pegs.getDiskCount(peg) > 0:
+				_current = peg;
+			else:
+				_renderer.status = emptyPeg.format([peg + 1]);
+		}
+		else
+		{
+			moveDisk(_current, peg);
+			_current = null;
+		}
+	}
+
+	private moveDisk(fromPeg, toPeg)
+	{
+		if fromPeg == toPeg:
+			return false;
+
+		// Let's make sure we can invalidate the right rendered lines later
+		var fromHeight = _pegs.getDiskCount(fromPeg);
+		var toHeight = _pegs.getDiskCount(toPeg);
+
+		if _pegs.moveDisk(fromPeg, toPeg)
+		{
+			// invalidate takes a zero-based "line" number
+			_renderer.invalidate(fromHeight - 1);
+			_renderer.invalidate(toHeight);
+			_moves += 1;
+			return true;
+		}
+
+		// Invalid move!
+		_renderer.status = invalidMove;
+		return false;
+	}
+
+	public const minDisks = 2;
+	public const maxDisks = 15;
+
+	public const pegCount = 3;
+
+	public const emptyPeg = "Can't select peg {0}: it's empty";
+	public const invalidMove = "A disk cannot be placed on a smaller disk";
+}

@@ -1,0 +1,15 @@
+use "Hanoi.osp";
+use "HanoiConfig.osp";
+use "HanoiPegs.osp";
+use "HanoiRenderer.osp";
+
+use namespace aves;
+
+namespace games.hanoi;
+
+private function main(args)
+{
+	var config = HanoiConfig.fromArgs(args);
+	var game = new Hanoi(config);
+	game.run();
+}

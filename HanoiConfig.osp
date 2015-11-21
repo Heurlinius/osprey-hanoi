@@ -1,0 +1,27 @@
+use namespace aves;
+
+namespace games.hanoi;
+
+public class HanoiConfig
+{
+	private _disks = 3;
+	public get disks = _disks;
+	public set disks
+	{
+		value = int(value);
+		if value < Hanoi.minDisks or value > Hanoi.maxDisks:
+			throw new ArgumentRangeError("value");
+
+		_disks = value;
+	}
+
+	public static fromArgs(args)
+	{
+		var config = new HanoiConfig();
+
+		if args.length > 0:
+			config.disks = Int.parse(args[0]);
+
+		return config;
+	}
+}

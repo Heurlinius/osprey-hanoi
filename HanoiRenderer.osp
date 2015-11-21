@@ -1,0 +1,225 @@
+use namespace aves;
+
+namespace games.hanoi;
+
+public class HanoiRenderer
+{
+	public new(game)
+	{
+		this.game = game;
+		diskCount = game.pegs.height;
+	}
+
+	private game;
+	private fullRender = true;
+	private invalidated = new Set();
+	private diskCount;
+
+	private diskStrings;
+	private basePlateStrings;
+	private prevStatusLength = 0;
+
+	private _status = "";
+	public get status = _status;
+	public set status { _status = string(value); }
+
+	private pegsX;
+	private statusX;
+	private basePlateY;
+
+	private prevWindowWidth, prevWindowHeight;
+	private prevBufferWidth, prevBufferHeight;
+
+	public reset()
+	{
+		_status = "";
+		fullRender = true;
+		invalidated.clear();
+	}
+
+	public initialize()
+	{
+		var maxDiskWidth = getMaxDiskWidth(diskCount);
+		var pegsWidth = Hanoi.pegCount * maxDiskWidth;
+		var statusWidth = math.max(minStatusWidth, pegsWidth);
+
+		generateDisks(maxDiskWidth);
+		generateBasePlates(maxDiskWidth, statusWidth);
+
+		var height =
+			diskCount
+			+ 1  // divider line/base plate
+			+ 1; // status line
+
+		// Some padding around the game area is nice (2 horizontal, 1 vertical)
+		ensureWindowWidth(statusWidth + 4, height + 2);
+
+		statusX = (Console.windowWidth - statusWidth) / 2;
+		pegsX = (Console.windowWidth - pegsWidth) / 2;
+		basePlateY = (Console.windowHeight - height) / 2 + diskCount;
+
+		Console.showCursor = false;
+	}
+
+	private ensureWindowWidth(width, height)
+	{
+		Console.clear();
+
+		prevWindowWidth = Console.windowWidth;
+		prevWindowHeight = Console.windowHeight;
+		prevBufferWidth = Console.bufferWidth;
+		prevBufferHeight = Console.bufferHeight;
+
+		if Console.windowWidth < width:
+			Console.windowWidth = width;
+		if Console.windowHeight < height:
+			Console.windowHeight = height;
+
+		Console.bufferWidth = Console.windowWidth;
+		Console.bufferHeight = Console.windowHeight;
+	}
+
+	public restore()
+	{
+		Console.clear();
+
+		Console.windowWidth = prevWindowWidth;
+		Console.windowHeight = prevWindowHeight;
+		Console.bufferWidth = prevBufferWidth;
+		Console.bufferHeight = prevBufferHeight;
+
+		Console.showCursor = true;
+	}
+
+	private generateDisks(maxWidth)
+	{
+		// Each disk looks like this: ═══╪═══, where the number of ═ characters
+		// on either side is the size of the disk, and the ╪ is part of the peg.
+		// We make sure all the strings are padded to the size of the largest disk,
+		// and also generate a special size of disk 0, for pegs with nothing on
+		// them.
+
+		var diskStrings = new List(diskCount + 1);
+		for size in Iterable.range(0, diskCount + 1)
+		{
+			var disk = size == 0 ? pegChar : pegWithDiskChar;
+			disk = disk.surroundWith(diskChar * size);
+			disk = disk.pad(maxWidth, " ", StringPad.both);
+			diskStrings.add(disk);
+		}
+
+		this.diskStrings = diskStrings;
+	}
+
+	private generateBasePlates(maxDiskWidth, statusWidth)
+	{
+		// The base plate shows the number associated with each peg, as well as
+		// indicates which peg is currently selected, and looks like this:
+		// ── 1 ────╢2╟──── 3 ──
+		// where the specially marked number is selected. The base plate is as
+		// wide as the status area, but the numbers are centered on each peg.
+		// A total of 1 + Hanoi.pegCount base plates are generated, one for each
+		// possible selection plus one for when there is no selection at all.
+		// The "everything unselected" base plate is at index 0.
+
+		var basePlateStrings = new List(Hanoi.pegCount + 1);
+		var pegNumbers = Iterable.range(1, Hanoi.pegCount);
+
+		for selected in Iterable.range(0, Hanoi.pegCount + 1)
+		{
+			var basePlate = pegNumbers.map(@n
+				{
+					if n == selected:
+						return currentDiskLeftChar :: n :: currentDiskRightChar;
+					else:
+						return " " :: n :: " ";
+				})
+				.map(@.pad(maxDiskWidth, basePlateChar, StringPad.both))
+				.join("")
+				.pad(statusWidth, basePlateChar, StringPad.both);
+			basePlateStrings.add(basePlate);
+		}
+
+		this.basePlateStrings = basePlateStrings;
+	}
+
+	private getMaxDiskWidth(diskCount)
+	{
+		// Each disk looks like this: ═══╪═══, where the number of ═ characters
+		// on either side is the size of the disk, and the ╪ is part of the peg.
+		return 2 * diskCount + 1;
+	}
+
+	public invalidate(level)
+	{
+		level = int(level);
+		if level < 0 or level >= diskCount:
+			throw new ArgumentRangeError("level");
+
+		invalidated.add(level);
+	}
+
+	public render()
+	{
+		renderDisks();
+		renderBasePlate();
+		renderStatus();
+
+		fullRender = false;
+		invalidated.clear();
+	}
+
+	private renderDisks()
+	{
+		var levels;
+		if fullRender:
+			levels = Iterable.range(0, diskCount);
+		else:
+			levels = invalidated;
+
+		var pegs = Iterable.range(0, Hanoi.pegCount);
+
+		for level in levels
+		{
+			Console.cursorX = pegsX;
+			Console.cursorY = basePlateY - 1 - level;
+
+			for peg in pegs:
+				Console.write(diskStrings[game.pegs.getDisk(peg, level)]);
+		}
+	}
+
+	private renderBasePlate()
+	{
+		var basePlate = basePlateStrings[game.current ?! game.current + 1 ?? 0];
+		Console.cursorX = statusX;
+		Console.cursorY = basePlateY;
+		Console.write(basePlate);
+	}
+
+	private renderStatus()
+	{
+		var status = _status.isEmpty ? getMovesStatus() : _status;
+		Console.cursorX = statusX;
+		Console.cursorY = basePlateY + 1;
+
+		// Pad with spaces to make sure we overwrite the entire previous status
+		Console.write(status.padEnd(prevStatusLength));
+
+		prevStatusLength = status.length;
+	}
+
+	private getMovesStatus()
+	{
+		return "Moves: " :: game.moves;
+	}
+
+	private const minStatusWidth = 41;
+
+	private const pegChar              = "│";
+	private const pegWithDiskChar      = "╪";
+	private const diskChar             = "═";
+	private const basePlateChar        = "─";
+	private const currentDiskLeftChar  = "╢";
+	private const currentDiskRightChar = "╟";
+}

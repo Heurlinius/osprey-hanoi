@@ -1,0 +1,107 @@
+use namespace aves;
+
+namespace games.hanoi;
+
+public class HanoiPegs
+{
+	public new(config)
+	{
+		_height = config.disks;
+		reset();
+	}
+
+	private stackHeights;
+	// An Array of disk sizes (1 to height) for each peg, in peg-major order.
+	// The lowest index for each peg is the bottom of that stack. Hence, for
+	// a game state like this:
+	//     │      │      │
+	//    ═╪═     │      │
+	//  ═══╪═══   │    ══╪══
+	// the array would look as follows:
+	//   3,  1,  0,   -- peg 0
+	//   0,  0,  0,   -- peg 1
+	//   2,  0,  0    -- peg 2
+	// And of course stackHeights would contain this:
+	//   2,  0,  1
+	private pegs;
+
+	private _height;
+	public get height = _height;
+
+	public reset()
+	{
+		stackHeights = new Array(Hanoi.pegCount);
+		stackHeights.fill(0);
+		// All disks are on the first peg initially
+		stackHeights[0] = height;
+
+		pegs = new Array(Hanoi.pegCount * _height);
+		pegs.fill(0);
+
+		for i in Iterable.range(0, height):
+			pegs[i] = height - i;
+	}
+
+	public getDiskCount(peg)
+	{
+		if peg < 0 or peg >= Hanoi.pegCount:
+			throw new ArgumentRangeError("peg");
+
+		return stackHeights[peg];
+	}
+
+	public getTop(peg)
+	{
+		if peg < 0 or peg >= Hanoi.pegCount:
+			throw new ArgumentRangeError("peg");
+
+		var height = stackHeights[peg];
+		if height == 0:
+			return 0;
+
+		return pegs[getDiskIndex(peg, height - 1)];
+	}
+
+	public getDisk(peg, level)
+	{
+		if peg < 0 or peg >= Hanoi.pegCount:
+			throw new ArgumentRangeError("peg");
+
+		if level < 0 or level >= height:
+			throw new ArgumentRangeError("level");
+
+		return pegs[getDiskIndex(peg, level)];
+	}
+
+	private getDiskIndex(peg, level)
+	{
+		return _height * peg + level;
+	}
+
+	public moveDisk(fromPeg, toPeg)
+	{
+		// Technically not valid, but treat it like a no-op
+		if fromPeg == toPeg:
+			return true;
+
+		var fromDisk = getTop(fromPeg);
+		var toDisk = getTop(toPeg);
+
+		if fromDisk == 0:
+			// Cannot move from an emtpy stack
+			return false;
+		if toDisk != 0 and fromDisk > toDisk:
+			// Cannot put a larger disk on top of a smaller one
+			return false;
+
+		// Pop the disk off fromPeg
+		stackHeights[fromPeg] -= 1;
+		pegs[getDiskIndex(fromPeg, stackHeights[fromPeg])] = 0;
+
+		// And push it onto toPeg
+		pegs[getDiskIndex(toPeg, stackHeights[toPeg])] = fromDisk;
+		stackHeights[toPeg] += 1;
+
+		return true;
+	}
+}
