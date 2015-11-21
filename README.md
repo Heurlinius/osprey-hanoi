@@ -47,3 +47,5 @@ want to move a disk off, then you select the peg to move onto.
 
   [hanoi]: https://en.wikipedia.org/wiki/Tower_of_Hanoi "Tower of Hanoi (Wikipedia)"
   [osp]: https://osprey-lang.net/
+  [ospc]: https://github.com/osprey-lang/osprey
+  [ovum]: https://github.com/osprey-lang/ovum
