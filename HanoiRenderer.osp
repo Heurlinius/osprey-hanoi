@@ -16,6 +16,7 @@ public class HanoiRenderer
 	private diskCount;
 
 	private diskStrings;
+	private liftedDiskStrings;
 	private basePlateStrings;
 	private prevStatusLength = 0;
 
@@ -46,10 +47,8 @@ public class HanoiRenderer
 		generateDisks(maxDiskWidth);
 		generateBasePlates(maxDiskWidth, statusWidth);
 
-		var height =
-			diskCount
-			+ 1  // divider line/base plate
-			+ 1; // status line
+		// +3 for base plate, status line and current disk
+		var height = diskCount + 3;
 
 		// Some padding around the game area is nice (2 horizontal, 1 vertical)
 		ensureWindowWidth(statusWidth + 4, height + 2);
@@ -83,10 +82,13 @@ public class HanoiRenderer
 	{
 		Console.clear();
 
-		Console.windowWidth = prevWindowWidth;
-		Console.windowHeight = prevWindowHeight;
-		Console.bufferWidth = prevBufferWidth;
-		Console.bufferHeight = prevBufferHeight;
+		if prevWindowWidth is not null
+		{
+			Console.windowWidth = prevWindowWidth;
+			Console.windowHeight = prevWindowHeight;
+			Console.bufferWidth = prevBufferWidth;
+			Console.bufferHeight = prevBufferHeight;
+		}
 
 		Console.showCursor = true;
 	}
@@ -100,15 +102,33 @@ public class HanoiRenderer
 		// them.
 
 		var diskStrings = new List(diskCount + 1);
+		var liftedDiskStrings = new List(diskCount + 1);
+
 		for size in Iterable.range(0, diskCount + 1)
 		{
-			var disk = size == 0 ? pegChar : pegWithDiskChar;
+			var disk, liftedDisk;
+
+			if size == 0
+			{
+				disk = pegChar;
+				liftedDisk = " " * maxWidth;
+			}
+			else
+			{
+				disk = pegWithDiskChar;
+				liftedDisk = diskChar * (2 * size + 1);
+			}
+
 			disk = disk.surroundWith(diskChar * size);
 			disk = disk.pad(maxWidth, " ", StringPad.both);
+			liftedDisk = liftedDisk.pad(maxWidth, " ", StringPad.both);
+
 			diskStrings.add(disk);
+			liftedDiskStrings.add(liftedDisk);
 		}
 
 		this.diskStrings = diskStrings;
+		this.liftedDiskStrings = liftedDiskStrings;
 	}
 
 	private generateBasePlates(maxDiskWidth, statusWidth)
@@ -178,15 +198,30 @@ public class HanoiRenderer
 			levels = invalidated;
 
 		var pegs = Iterable.range(0, Hanoi.pegCount);
+		var currentPeg = game.current;
+		var currentLevel = currentPeg ?! game.pegs.getDiskCount(currentPeg) - 1;
+		var currentSize = currentPeg ?! game.pegs.getDisk(currentPeg, currentLevel);
 
 		for level in levels
 		{
 			Console.cursorX = pegsX;
 			Console.cursorY = basePlateY - 1 - level;
 
-			for peg in pegs:
-				Console.write(diskStrings[game.pegs.getDisk(peg, level)]);
+			for peg in pegs
+			{
+				if peg == currentPeg and level == currentLevel:
+					Console.write(diskStrings[0]);
+				else:
+					Console.write(diskStrings[game.pegs.getDisk(peg, level)]);
+			}
 		}
+
+		Console.cursorX = pegsX;
+		Console.cursorY = basePlateY - 1 - diskCount;
+		Console.write(
+			pegs.map(@peg = liftedDiskStrings[peg == currentPeg ? currentSize : 0])
+				.join("")
+		);
 	}
 
 	private renderBasePlate()
