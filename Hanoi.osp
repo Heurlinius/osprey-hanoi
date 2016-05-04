@@ -29,9 +29,9 @@ public class Hanoi
 
 	private initKeyHandlers()
 	{
-		var select0 = @= selectPeg(0);
-		var select1 = @= selectPeg(1);
-		var select2 = @= selectPeg(2);
+		var select0 = @=> selectPeg(0);
+		var select1 = @=> selectPeg(1);
+		var select2 = @=> selectPeg(2);
 
 		keyHandlers = {
 			ConsoleKeyCode.d1: select0,

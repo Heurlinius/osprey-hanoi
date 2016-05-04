@@ -219,7 +219,7 @@ public class HanoiRenderer
 		Console.cursorX = pegsX;
 		Console.cursorY = basePlateY - 1 - diskCount;
 		Console.write(
-			pegs.map(@peg = liftedDiskStrings[peg == currentPeg ? currentSize : 0])
+			pegs.map(@peg => liftedDiskStrings[peg == currentPeg ? currentSize : 0])
 				.join("")
 		);
 	}
