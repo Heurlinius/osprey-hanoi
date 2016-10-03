@@ -111,15 +111,15 @@ public class HanoiRenderer
 			if size == 0
 			{
 				disk = pegChar;
-				liftedDisk = " " * maxWidth;
+				liftedDisk = " ".repeat(maxWidth);
 			}
 			else
 			{
 				disk = pegWithDiskChar;
-				liftedDisk = diskChar * (2 * size + 1);
+				liftedDisk = diskChar.repeat(2 * size + 1);
 			}
 
-			disk = disk.surroundWith(diskChar * size);
+			disk = disk.surroundWith(diskChar.repeat(size));
 			disk = disk.pad(maxWidth, " ", StringPad.both);
 			liftedDisk = liftedDisk.pad(maxWidth, " ", StringPad.both);
 
