@@ -21,7 +21,7 @@ public class HanoiRenderer
 	private prevStatusLength = 0;
 
 	private _status = "";
-	public get status = _status;
+	public get status => _status;
 	public set status { _status = string(value); }
 
 	private pegsX;

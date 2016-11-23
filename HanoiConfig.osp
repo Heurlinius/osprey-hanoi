@@ -5,7 +5,7 @@ namespace games.hanoi;
 public class HanoiConfig
 {
 	private _disks = 3;
-	public get disks = _disks;
+	public get disks => _disks;
 	public set disks
 	{
 		value = int(value);

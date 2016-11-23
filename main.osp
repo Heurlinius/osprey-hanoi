@@ -7,7 +7,7 @@ use aves;
 
 namespace games.hanoi;
 
-private function main(args)
+internal function main(args)
 {
 	var config = HanoiConfig.fromArgs(args);
 	var game = new Hanoi(config);

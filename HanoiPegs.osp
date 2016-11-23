@@ -26,7 +26,7 @@ public class HanoiPegs
 	private pegs;
 
 	private _height;
-	public get height = _height;
+	public get height => _height;
 
 	public reset()
 	{

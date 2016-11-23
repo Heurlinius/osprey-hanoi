@@ -12,16 +12,16 @@ public class Hanoi
 	}
 
 	private _pegs;
-	public get pegs = _pegs;
+	public get pegs => _pegs;
 
 	private _renderer;
-	public get renderer = _renderer;
+	public get renderer => _renderer;
 
 	private _moves = 0;
-	public get moves = _moves;
+	public get moves => _moves;
 
 	private _current = null;
-	public get current = _current;
+	public get current => _current;
 
 	private keyHandlers;
 
