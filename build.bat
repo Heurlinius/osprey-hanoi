@@ -10,4 +10,4 @@ if not exist ".\bin\" (
 	mkdir ".\bin"
 )
 
-%OSPC% /libpath "%LIB%" /main games.hanoi.main /out ".\bin\hanoi.ovm" /doc ".\bin\hanoi.ovm.json" /verbose main.osp
+%OSPC% /libpath "%LIB%" /main games.hanoi.main /out ".\bin\hanoi.ovm" /doc ".\bin\hanoi.ovm.json" /verbose src\main.osp
