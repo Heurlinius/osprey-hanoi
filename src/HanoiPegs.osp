@@ -38,37 +38,43 @@ public class HanoiPegs
 		pegs = new Array(Hanoi.pegCount * _height);
 		pegs.fill(0);
 
-		for i in Iterable.range(0, height):
+		for i in Iterable.range(0, height) {
 			pegs[i] = height - i;
+		}
 	}
 
 	public getDiskCount(peg)
 	{
-		if peg < 0 or peg >= Hanoi.pegCount:
+		if peg < 0 or peg >= Hanoi.pegCount {
 			throw new ArgumentRangeError("peg");
+		}
 
 		return stackHeights[peg];
 	}
 
 	public getTop(peg)
 	{
-		if peg < 0 or peg >= Hanoi.pegCount:
+		if peg < 0 or peg >= Hanoi.pegCount {
 			throw new ArgumentRangeError("peg");
+		}
 
 		var height = stackHeights[peg];
-		if height == 0:
+		if height == 0 {
 			return 0;
+		}
 
 		return pegs[getDiskIndex(peg, height - 1)];
 	}
 
 	public getDisk(peg, level)
 	{
-		if peg < 0 or peg >= Hanoi.pegCount:
+		if peg < 0 or peg >= Hanoi.pegCount {
 			throw new ArgumentRangeError("peg");
+		}
 
-		if level < 0 or level >= height:
+		if level < 0 or level >= height {
 			throw new ArgumentRangeError("level");
+		}
 
 		return pegs[getDiskIndex(peg, level)];
 	}
@@ -81,18 +87,21 @@ public class HanoiPegs
 	public moveDisk(fromPeg, toPeg)
 	{
 		// Technically not valid, but treat it like a no-op
-		if fromPeg == toPeg:
+		if fromPeg == toPeg {
 			return true;
+		}
 
 		var fromDisk = getTop(fromPeg);
 		var toDisk = getTop(toPeg);
 
-		if fromDisk == 0:
+		if fromDisk == 0 {
 			// Cannot move from an emtpy stack
 			return false;
-		if toDisk != 0 and fromDisk > toDisk:
+		}
+		if toDisk != 0 and fromDisk > toDisk {
 			// Cannot put a larger disk on top of a smaller one
 			return false;
+		}
 
 		// Pop the disk off fromPeg
 		stackHeights[fromPeg] -= 1;

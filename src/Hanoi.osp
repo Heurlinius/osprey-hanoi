@@ -66,26 +66,24 @@ public class Hanoi
 
 	public run()
 	{
-		if running:
+		if running {
 			throw new InvalidStateError("The game is already running.");
+		}
 
 		reset();
 
-		try
-		{
+		try {
 			_renderer.initialize();
 
 			running = true;
-			while running
-			{
+			while running {
 				_renderer.render();
 				_renderer.status = "";
 
 				processMove();
 			}
 		}
-		finally
-		{
+		finally {
 			_renderer.restore();
 		}
 	}
@@ -96,8 +94,9 @@ public class Hanoi
 		var kc = key.keyCode;
 
 		var handler;
-		if keyHandlers.tryGet(kc, ref handler):
+		if keyHandlers.tryGet(kc, ref handler) {
 			handler();
+		}
 	}
 
 	public quit()
@@ -107,12 +106,10 @@ public class Hanoi
 
 	public selectPeg(peg)
 	{
-		if _current is null
-		{
+		if _current is null {
 			setCurrent(peg);
 		}
-		else
-		{
+		else {
 			moveDisk(_current, peg);
 			_current = null;
 		}
@@ -120,13 +117,11 @@ public class Hanoi
 
 	private setCurrent(peg)
 	{
-		if _pegs.getDiskCount(peg) > 0
-		{
+		if _pegs.getDiskCount(peg) > 0 {
 			_current = peg;
 			_renderer.invalidate(_pegs.getDiskCount(peg) - 1);
 		}
-		else
-		{
+		else {
 			_renderer.status = emptyPeg.format([peg + 1]);
 		}
 	}
@@ -140,11 +135,11 @@ public class Hanoi
 		// This always needs to be redrawn
 		_renderer.invalidate(fromHeight - 1);
 
-		if fromPeg == toPeg:
+		if fromPeg == toPeg {
 			return false;
+		}
 
-		if _pegs.moveDisk(fromPeg, toPeg)
-		{
+		if _pegs.moveDisk(fromPeg, toPeg) {
 			_renderer.invalidate(toHeight);
 			_moves += 1;
 			return true;

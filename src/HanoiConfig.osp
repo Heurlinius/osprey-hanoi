@@ -9,8 +9,9 @@ public class HanoiConfig
 	public set disks
 	{
 		value = int(value);
-		if value < Hanoi.minDisks or value > Hanoi.maxDisks:
+		if value < Hanoi.minDisks or value > Hanoi.maxDisks {
 			throw new ArgumentRangeError("value");
+		}
 
 		_disks = value;
 	}
@@ -19,8 +20,9 @@ public class HanoiConfig
 	{
 		var config = new HanoiConfig();
 
-		if args.length > 0:
+		if args.length > 0 {
 			config.disks = Int.parse(args[0]);
+		}
 
 		return config;
 	}

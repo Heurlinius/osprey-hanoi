@@ -69,10 +69,12 @@ public class HanoiRenderer
 		prevBufferWidth = Console.bufferWidth;
 		prevBufferHeight = Console.bufferHeight;
 
-		if Console.windowWidth < width:
+		if Console.windowWidth < width {
 			Console.windowWidth = width;
-		if Console.windowHeight < height:
+		}
+		if Console.windowHeight < height {
 			Console.windowHeight = height;
+		}
 
 		Console.bufferWidth = Console.windowWidth;
 		Console.bufferHeight = Console.windowHeight;
@@ -82,8 +84,7 @@ public class HanoiRenderer
 	{
 		Console.clear();
 
-		if prevWindowWidth is not null
-		{
+		if prevWindowWidth is not null {
 			Console.windowWidth = prevWindowWidth;
 			Console.windowHeight = prevWindowHeight;
 			Console.bufferWidth = prevBufferWidth;
@@ -104,17 +105,14 @@ public class HanoiRenderer
 		var diskStrings = new List(diskCount + 1);
 		var liftedDiskStrings = new List(diskCount + 1);
 
-		for size in Iterable.range(0, diskCount + 1)
-		{
+		for size in Iterable.range(0, diskCount + 1) {
 			var disk, liftedDisk;
 
-			if size == 0
-			{
+			if size == 0 {
 				disk = pegChar;
 				liftedDisk = " ".repeat(maxWidth);
 			}
-			else
-			{
+			else {
 				disk = pegWithDiskChar;
 				liftedDisk = diskChar.repeat(2 * size + 1);
 			}
@@ -145,14 +143,14 @@ public class HanoiRenderer
 		var basePlateStrings = new List(Hanoi.pegCount + 1);
 		var pegNumbers = Iterable.range(1, Hanoi.pegCount);
 
-		for selected in Iterable.range(0, Hanoi.pegCount + 1)
-		{
-			var basePlate = pegNumbers.map(@n
-				{
-					if n == selected:
+		for selected in Iterable.range(0, Hanoi.pegCount + 1) {
+			var basePlate = pegNumbers.map(@n {
+					if n == selected {
 						return currentDiskLeftChar :: n :: currentDiskRightChar;
-					else:
+					}
+					else {
 						return " " :: n :: " ";
+					}
 				})
 				.map(@.pad(maxDiskWidth, basePlateChar, StringPad.both))
 				.join("")
@@ -173,8 +171,9 @@ public class HanoiRenderer
 	public invalidate(level)
 	{
 		level = int(level);
-		if level < 0 or level >= diskCount:
+		if level < 0 or level >= diskCount {
 			throw new ArgumentRangeError("level");
+		}
 
 		invalidated.add(level);
 	}
@@ -192,27 +191,29 @@ public class HanoiRenderer
 	private renderDisks()
 	{
 		var levels;
-		if fullRender:
+		if fullRender {
 			levels = Iterable.range(0, diskCount);
-		else:
+		}
+		else {
 			levels = invalidated;
+		}
 
 		var pegs = Iterable.range(0, Hanoi.pegCount);
 		var currentPeg = game.current;
 		var currentLevel = currentPeg ?! game.pegs.getDiskCount(currentPeg) - 1;
 		var currentSize = currentPeg ?! game.pegs.getDisk(currentPeg, currentLevel);
 
-		for level in levels
-		{
+		for level in levels {
 			Console.cursorX = pegsX;
 			Console.cursorY = basePlateY - 1 - level;
 
-			for peg in pegs
-			{
-				if peg == currentPeg and level == currentLevel:
+			for peg in pegs {
+				if peg == currentPeg and level == currentLevel {
 					Console.write(diskStrings[0]);
-				else:
+				}
+				else {
 					Console.write(diskStrings[game.pegs.getDisk(peg, level)]);
+				}
 			}
 		}
 
