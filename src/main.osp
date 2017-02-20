@@ -3,7 +3,7 @@ use "HanoiConfig.osp";
 use "HanoiPegs.osp";
 use "HanoiRenderer.osp";
 
-use aves;
+use aves.*;
 
 namespace games.hanoi;
 
